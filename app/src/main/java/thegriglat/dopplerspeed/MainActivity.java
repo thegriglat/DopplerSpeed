@@ -11,6 +11,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     /* RecordAudio recordTask;*/
     private  int RECORDER_SAMPLERATE = 8000;
+    private static final double SOUND_SPEED = 340.29; //  m/s
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     AudioRecord mRecorder = null;
@@ -39,6 +40,13 @@ public class MainActivity extends AppCompatActivity {
         mt = new MyTask();
         mt.execute();
 
+    }
+
+    private double getDopplerSpeed(double freq, double w0){
+        // w0 == 42 is 2500 rpm
+        double v = 0;
+        v = SOUND_SPEED * (1 - w0 / freq);
+        return v;
     }
 
     public int getValidSampleRates() {

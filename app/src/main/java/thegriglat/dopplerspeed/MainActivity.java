@@ -8,9 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import java.util.Timer;
-import ca.uol.aig.fftpack.RealDoubleFFT;
-
 public class MainActivity extends AppCompatActivity {
     /* RecordAudio recordTask;*/
     private  int RECORDER_SAMPLERATE = 8000;
@@ -20,11 +17,8 @@ public class MainActivity extends AppCompatActivity {
     int bufferSize;
     int blockSize = 256; // want to play 2048 (2K) since 2 bytes we use only 1024
     int BytesPerElement = 1; // 2 bytes in 16bit format
-    Thread recordingThread;
     boolean isRecording;
-    RealDoubleFFT transformer;
 
-    private Timer myTimer;
     private TextView textlabel;
 
     /* END audio records */
@@ -57,22 +51,6 @@ public class MainActivity extends AppCompatActivity {
         return 8000;
     }
 
-    private double getMax(double[] arr) {
-        if (arr.length == 0) return 0;
-        double m = arr[0];
-        for (int i = 0; i < arr.length; i++)
-            if (arr[i] > m) m = arr[i];
-        return m;
-    }
-
-    private void publishTransform(double[] transform) {
-        double freq = (getMax(transform) * RECORDER_SAMPLERATE) / blockSize;
-        try {
-            textlabel.setText(Double.toString(freq));
-        } catch (Exception e){
-            textlabel.setText(e.getMessage());
-        }
-    }
 
     public static int calculate(int sampleRate, short [] audioData){
 
@@ -110,14 +88,11 @@ public class MainActivity extends AppCompatActivity {
             // Write the output audio in byte
             mRecorder.startRecording();
             short sData[] = new short[blockSize];
-            transformer = new RealDoubleFFT(blockSize);
-            int bufferReadResult;
-            double[] toTransform = new double[blockSize];
             int freq = 0;
             while (isRecording) {
                 // gets the voice output from microphone to byte format
                 try {
-                    bufferReadResult = mRecorder.read(sData, 0, blockSize);
+                    mRecorder.read(sData, 0, blockSize);
                     /*for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
                         toTransform[i] = (double) sData[i] / 32768.0;
                     }
